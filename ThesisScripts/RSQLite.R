@@ -141,3 +141,31 @@ update_published_date <- function(conn, published_date) {
 # Call the function (Assuming sqlcon is your SQLite connection)
 update_published_date(sqlcon, published_date)
 
+
+#ALTER TABLES IN SQLite
+library(DBI)
+library(RSQLite)
+
+# Connect to SQLite database
+con <- dbConnect(SQLite(), "fhmdata.sqlite")
+
+# List of table names
+tables <- c("acov19DAG", "bcov19Kom", "ccov19kon", "ccov19Reg", "ccov19Regsasong",
+            "dcov19ald", "ecov19sabo", "ecov19sabosasong", "xcov19ivavDAG", 
+            "ycov19ivavald", "ycov19ivavkon")
+
+# Loop through tables and execute the SQL commands
+for (table in tables) {
+  query_alter <- sprintf("ALTER TABLE %s ADD COLUMN reported_date TEXT;", table)
+  query_update <- sprintf("UPDATE %s SET reported_date = 
+                          SUBSTR(published_date, 1, 4) || '-' || 
+                          SUBSTR(published_date, 5, 2) || '-' || 
+                          SUBSTR(published_date, 7, 2);", table)
+  
+  dbExecute(con, query_alter)
+  dbExecute(con, query_update)
+}
+
+# Disconnect from the database
+dbDisconnect(con)
+

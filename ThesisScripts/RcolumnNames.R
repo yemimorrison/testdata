@@ -19,7 +19,7 @@ read_csv_columns <- function(folder_path) {
 
 # Example usage
 # Set your folder path here
-folder_path <- "C:/Users/HP/Documents/FHM_project/data/20230405/" 
+folder_path <- "C:/Users/HP/Documents/FHM_project/data/20230406/" 
 
 read_csv_columns(folder_path)
 

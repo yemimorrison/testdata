@@ -8,19 +8,20 @@ library(RSQLite)
 con <- dbConnect(SQLite(), "fhmdata.sqlite")
 
 # Load August 2023 data
-query <- "SELECT Dag as event_date, Region, Fall_per_dag as cases, published_date as reported_date 
-FROM acov19DAG WHERE Dag BETWEEN '2023-08-01' AND '2023-08-31'"
+query <- "SELECT Dag as event_date, Region, Sum(Fall_per_dag) as cases, reported_date 
+FROM acov19DAG WHERE Dag BETWEEN '2023-08-01' AND '2023-08-31'
+group by Dag, Region"
 
 data <- dbGetQuery(con, query)
 
-data$reported_date<- as.Date(as.character(data$reported_date), format="%Y%m%d")
+data$reported_date<- as.Date(data$reported_date)
 data$event_date <- as.Date(data$event_date)
 data$cases <- as.numeric(data$cases)
 
 # Process data into time x delay matrix
 T <- length(unique(data$event_date))
-#D <- max(as.numeric(data$reported_date - data$event_date), na.rm = TRUE) 
-D <- 31
+D <- max(as.numeric(data$reported_date - data$event_date), na.rm = TRUE) 
+D <- D+1
 y <- matrix(0, nrow = T, ncol = D) #Add +1 to D to deal with the issue of dimensions.
 
 for (i in 1:nrow(data)) {
